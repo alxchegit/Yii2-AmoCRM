@@ -6,6 +6,8 @@
 /** @var $contacts Contacts Service */
 /** @var $companies Companies Service */
 
+use yii\helpers\Html;
+
 $this->title = 'My Yii Application';
 
 ?>
@@ -14,11 +16,12 @@ $this->title = 'My Yii Application';
         <?php print_r($leads) ?>
     </pre>
 </div>
-
 <div class="site-index">
     <div class="body-content">
         <div class="row">
-
+            <div class="clearfix">
+                <?= Html::a('Добавить', 'create', ['class' => 'btn btn-lg btn-success col-lg-2']) ?>
+            </div>
         <?php foreach ($leads as $key => $lead) { ?>
             <div class="amocrm-lead alert alert-info">
                 <div class="hidden"> <?= $lead->id ?> </div>

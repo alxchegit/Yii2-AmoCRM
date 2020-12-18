@@ -5,10 +5,17 @@ namespace app\controllers;
 use Yii;
 use yii\web\Controller;
 use \AmoCRM\Client\AmoCRMApiClient;
+use AmoCRM\Models\LeadModel;
 use yii\web\BadRequestHttpException;
+use app\models\LeedsForm;
+use app\models\AmoCrm;
 
 class SiteController extends Controller
 {
+    /**
+     * @var \League\OAuth2\Client\Token\AccessToken $access_token
+     */
+    private $access_token;
     /**
      * {@inheritdoc}
      */
@@ -28,17 +35,7 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $amo = Yii::$app->params['amocrm'];
-
-        $clientId = $amo['resource_owner_id'];
-        $clientSecret = $amo['secret_key'];
-        $redirectUri = 'https://test.test';
-
-        $apiClient = new AmoCRMApiClient($clientId, $clientSecret, $redirectUri);
-        $accessToken = new \League\OAuth2\Client\Token\AccessToken($amo);
-
-        $apiClient->setAccessToken($accessToken) 
-        ->setAccountBaseDomain($accessToken->getValues()['baseDomain']);
+        $apiClient = $this->AmoCrmConstruct();
         
         try {
             $leadsService = $apiClient->leads();
@@ -71,9 +68,34 @@ class SiteController extends Controller
     }
 
     /**
-     * Refresh Access Token by refresh_token
+     * Action добавление сделок
      */
-    
+
+    public function actionCreate()
+    {
+        $apiClient = $this->AmoCrmConstruct();
+
+        $model = new LeedsForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->create()) {
+            return $this->redirect(['index']);
+        }
+
+        return $this->render('create', [
+            'model' => $model,
+        ]);
+
+    }
+
+    private function AmoCrmConstruct():  AmoCRMApiClient
+    {
+        $this->access_token = AmoCrm::$access_token;
+       return AmoCrm::construct();
+    }
+
+    /**
+     * get Access Token by refresh_token
+     */    
     private function getAccessTokenByRefresh() 
     {
         $amo = Yii::$app->params['amocrm'];
