@@ -14,6 +14,7 @@ $this->title = 'My Yii Application';
         <?php print_r($leads) ?>
     </pre>
 </div>
+
 <div class="site-index">
     <div class="body-content">
         <div class="row">
