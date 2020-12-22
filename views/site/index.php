@@ -1,8 +1,8 @@
 <?php
 
 /* @var $this yii\web\View */
-/** @var $leads Leads collections */
-/** @var $user Users Service */
+/** @var $leads Lead Service */
+/** @var $users Users Service */
 /** @var $contacts Contacts Service */
 /** @var $companies Companies Service */
 
@@ -20,7 +20,7 @@ $this->title = 'My Yii Application';
     <div class="body-content">
         <div class="row">
             <div class="clearfix">
-                <?= Html::a('Добавить', 'create', ['class' => 'btn btn-lg btn-success col-lg-2']) ?>
+                <?= Html::a('Добавить', ['create'], ['class' => 'btn btn-lg btn-success col-lg-2']) ?>
             </div>
         <?php foreach ($leads as $key => $lead) { ?>
             <div class="amocrm-lead alert alert-info">
@@ -31,8 +31,9 @@ $this->title = 'My Yii Application';
                 </strong></p>
                 <div class="amocrm-lead_body collapse" id="lead-<?= $key ?>">
                 <p>Контакты:</p>
-                <ul> 
-                <?php foreach ($lead->contacts as $key => $contact) { ?>
+                <ul>
+                    <?php if ($lead->contacts) :?>
+                <?php foreach ($lead->contacts as $key => $contact) : ?>
                 <?php $cont = $contacts->getOne($contact->id) ?>
                     <li> <?= $cont->name ?>
                         <ul>
@@ -52,10 +53,13 @@ $this->title = 'My Yii Application';
                             <?php } ?>
                         </ul>
                     </li>
-                <?php } ?>
+                <?php endforeach; ?>
+                <?php endif; ?>
                 </ul>
+                    <?php if ($lead->company->id) : ?>
                 <?php $company = $companies->getOne($lead->company->id) ?>
                 <p>Компания: <strong><?= $company->name ?></strong></p>
+                <?php endif; ?>
             </div>
                
             </div>

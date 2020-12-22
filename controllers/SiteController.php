@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use League\OAuth2\Client\Token\AccessToken;
 use Yii;
 use yii\web\Controller;
 use \AmoCRM\Client\AmoCRMApiClient;
@@ -12,10 +13,6 @@ use app\models\AmoCrm;
 
 class SiteController extends Controller
 {
-    /**
-     * @var \League\OAuth2\Client\Token\AccessToken $access_token
-     */
-    private $access_token;
     /**
      * {@inheritdoc}
      */
@@ -89,8 +86,8 @@ class SiteController extends Controller
 
     private function AmoCrmConstruct():  AmoCRMApiClient
     {
-        $this->access_token = AmoCrm::$access_token;
-       return AmoCrm::construct();
+        $access_token = AmoCrm::$access_token;
+       return AmoCrm::getApiClient();
     }
 
     /**
@@ -154,7 +151,7 @@ class SiteController extends Controller
         $amo_json = json_encode($amo);
 
         if(
-            file_put_contents('tmp/token1.json', $amo_json)
+            file_put_contents('tmp/token.json', $amo_json)
         ) {
             $this->goHome();
         } 

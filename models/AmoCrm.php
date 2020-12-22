@@ -14,7 +14,7 @@ class AmoCrm
     public static $access_token;
 
 
-    public static function construct()
+    public static function getApiClient(): AmoCRMApiClient
     {
         $amo = Yii::$app->params['amocrm'];
 

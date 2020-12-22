@@ -1,8 +1,11 @@
 <?php
 namespace app\models;
 
+use AmoCRM\Models\CompanyModel;
+use AmoCRM\Models\NoteType\CommonNote;
 use Yii;
 use yii\base\Model;
+use AmoCRM\Helpers\EntityTypesInterface;
 use app\models\AmoCrm;
 use AmoCRM\Collections\ContactsCollection;
 use AmoCRM\Collections\CustomFieldsValuesCollection;
@@ -22,9 +25,12 @@ class LeedsForm extends Model
 {
     public $responsibleUser;
     public $companyName;
+    public $companyPhone;
+    public $companyEmail;
+    public $companyAddress;
     public $contact;
     public $task;
-    public $leedName;
+    public $leadName;
     public $notes;
 
     /**
@@ -33,38 +39,60 @@ class LeedsForm extends Model
     public function rules()
     {
         return [
-            [['leedName'], 'required'],
-            [['notes', 'leedName'], 'string'],
+            [['leadName'], 'required'],
+            [['notes', 'leadName'], 'string'],
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'leadName' => 'Название сделки',
+            'notes' => 'Примечание',
         ];
     }
 
     public function create()
     {
-        $apiClient = AmoCrm::construct();
+        if(!$this->validate()){
+            return false;
+        }
+        $apiClient = AmoCrm::getApiClient();
         $leadsService = $apiClient->leads();
         $lead = new LeadModel();
-        $leadCustomFieldsValues = new CustomFieldsValuesCollection();
-        $textCustomFieldValueModel = new TextCustomFieldValuesModel();
-        $textCustomFieldValueModel->setFieldId(null);
-        $textCustomFieldValueModel->setValues(
-            (new TextCustomFieldValueCollection())
-                ->add((new TextCustomFieldValueModel())->setValue($this->notes))
-        );
-        $leadCustomFieldsValues->add($textCustomFieldValueModel);
-        $lead->setCustomFieldsValues($leadCustomFieldsValues);
-        $lead->setName($this->leedName);
+        $company = new CompanyModel();
+        $note = new CommonNote();
 
-        $leadsCollection = new LeadsCollection();
-        $leadsCollection->add($lead);
+
         try {
+            $lead->setName($this->leadName);
             $lead = $leadsService->addOne($lead);
+            $id = $lead->getId();
+            if($id){
+                $note->setEntityId($id)
+                    ->setText($this->notes);
+                $leadNotesService = $apiClient->notes(EntityTypesInterface::LEADS);
+                $note = $leadNotesService->addOne($note);
+
+
+            }
         } catch (AmoCRMApiException $e) {
-            var_dump($e);
+            echo "<pre>";
+            printError($e);
+            echo "</pre>";
             die;
         }
 
         return true;
     }
 
+    private function addCompany(CompanyModel $companyModel)
+    {
+        $contacts = new ContactsCollection();
+        $companyModel->setName($this->companyName)
+                ->setContacts();
+
+
+    }
 
 }
