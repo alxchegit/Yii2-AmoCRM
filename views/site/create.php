@@ -3,6 +3,8 @@
 /* @var $this yii\web\View */
 /* @var $form yii\bootstrap\ActiveForm */
 /* @var $model app\models\ContactForm */
+/* @var array $comps */
+/* @var array $contacts */
 
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
@@ -25,7 +27,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
                     <?= $form->field($model, 'notes')->textarea(['rows' => 2]) ?>
 
-                    <div class="form-group">
+                    <?= $form->field($model, 'company')->dropDownList($comps, ['options' => ['class'=>'class-select']]) ?>
+                    <?= Html::a('Добавить компанию', ['/company/create'] )?>
+
+                    <?= $form->field($model, 'contact')->dropDownList($contacts) ?>
+                    <?= Html::a('Создать контакт', ['/contacts/create'] )?>
+
+                <div class="form-group">
                         <?= Html::submitButton('Добавить', ['class' => 'btn btn-primary', 'name' => 'contact-button']) ?>
                     </div>
 

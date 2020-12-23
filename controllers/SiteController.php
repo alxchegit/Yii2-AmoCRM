@@ -2,11 +2,10 @@
 
 namespace app\controllers;
 
-use League\OAuth2\Client\Token\AccessToken;
+use AmoCRM\Exceptions\AmoCRMApiException;
 use Yii;
 use yii\web\Controller;
 use \AmoCRM\Client\AmoCRMApiClient;
-use AmoCRM\Models\LeadModel;
 use yii\web\BadRequestHttpException;
 use app\models\LeedsForm;
 use app\models\AmoCrm;
@@ -43,7 +42,7 @@ class SiteController extends Controller
             $contactsService = $apiClient->contacts();
             $companiesService = $apiClient->companies();
 
-        } catch (\Throwable $th) {
+        } catch (AmoCRMApiException $th) {
            
            $error = json_decode($th->getMessage(),true);
            if($error['status'] === 401){
@@ -71,7 +70,21 @@ class SiteController extends Controller
     public function actionCreate()
     {
         $apiClient = $this->AmoCrmConstruct();
-
+        try {
+            $companies = $apiClient->companies()->get()->toArray();
+            $contacts = $apiClient->contacts()->get()->toArray();
+            $comps = [];
+            $cont = [];
+            foreach ($companies as $company){
+                $comps[$company['id']] = $company['name'];
+            }
+            foreach ($contacts as $contact) {
+                $cont[$contact['id']] = $contact['name'];
+            }
+        } catch (AmoCRMApiException $e) {
+            printError($e);
+            die;
+        }
         $model = new LeedsForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->create()) {
@@ -80,13 +93,34 @@ class SiteController extends Controller
 
         return $this->render('create', [
             'model' => $model,
+            'comps' => $comps,
+            'contacts' => $cont,
         ]);
 
     }
 
+    /**
+     *
+     * @return string
+     */
+    public function actionTest()
+    {
+        $apiClient = $this->AmoCrmConstruct();
+        $companies = $apiClient->contacts()->get()->toArray();
+        $testOutput = [];
+        foreach ($companies as $company){
+            $testOutput[$company['id']] = $company['name'];
+        }
+        return $this->render('test', [
+            'testOutput' => $testOutput,
+        ]);
+    }
+
+    /**
+     * @return AmoCRMApiClient
+     */
     private function AmoCrmConstruct():  AmoCRMApiClient
     {
-        $access_token = AmoCrm::$access_token;
        return AmoCrm::getApiClient();
     }
 
@@ -138,7 +172,7 @@ class SiteController extends Controller
                 throw new BadRequestHttpException(isset($errors[$code]) ? $errors[$code] : 'Undefined error', $code);
             }
         }
-        catch(\Exception $e)
+        catch(BadRequestHttpException $e)
         {
             die('Ошибка: ' . $e->getMessage() . PHP_EOL . 'Код ошибки: ' . $e->getCode());
         }

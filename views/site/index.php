@@ -57,8 +57,11 @@ $this->title = 'My Yii Application';
                 <?php endif; ?>
                 </ul>
                     <?php if ($lead->company->id) : ?>
-                <?php $company = $companies->getOne($lead->company->id) ?>
-                <p>Компания: <strong><?= $company->name ?></strong></p>
+                        <?php $company = $companies->getOne($lead->company->id) ?>
+                        <p>Компания: <strong><?= $company->name ?></strong></p>
+                        <pre>
+                            <?php print_r($company->getCustomFieldsValues())?>
+                        </pre>
                 <?php endif; ?>
             </div>
                
