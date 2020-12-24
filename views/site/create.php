@@ -25,13 +25,15 @@ $this->params['breadcrumbs'][] = $this->title;
 
                     <?= $form->field($model, 'leadName')->textInput(['autofocus' => true]) ?>
 
-                    <?= $form->field($model, 'notes')->textarea(['rows' => 2]) ?>
-
-                    <?= $form->field($model, 'company')->dropDownList($comps, ['options' => ['class'=>'class-select']]) ?>
-                    <?= Html::a('Добавить компанию', ['/company/create'] )?>
-
+                    <div class="clearfix" style="margin-bottom: 10px;">
+                    <?= $form->field($model, 'company')->dropDownList($comps) ?>
+                    <?= Html::a('Добавить компанию', ['/company/create'],['style'=>'float:right;'] )?>
+                    </div>
                     <?= $form->field($model, 'contact')->dropDownList($contacts) ?>
-                    <?= Html::a('Создать контакт', ['/contacts/create'] )?>
+                <div class="clearfix" style="margin-bottom: 10px;">
+                    <?= Html::a('Создать контакт', ['/contact/create'],['style'=>'float:right;'] )?>
+                </div>
+                    <?= $form->field($model, 'notes')->textarea(['rows' => 2]) ?>
 
                 <div class="form-group">
                         <?= Html::submitButton('Добавить', ['class' => 'btn btn-primary', 'name' => 'contact-button']) ?>

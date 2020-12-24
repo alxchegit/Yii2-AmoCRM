@@ -1,7 +1,10 @@
 <?php
 namespace app\models;
 
+use AmoCRM\Client\AmoCRMApiClient;
+use AmoCRM\Collections\LinksCollection;
 use AmoCRM\Models\NoteType\CommonNote;
+use Yii;
 use yii\base\Model;
 use AmoCRM\Helpers\EntityTypesInterface;
 use AmoCRM\Exceptions\AmoCRMApiException;
@@ -25,9 +28,10 @@ class LeedsForm extends Model
     public function rules()
     {
         return [
-            [['leadName'], 'required'],
+            [['leadName','company', 'contact'], 'required'],
             [['notes', 'leadName'], 'string'],
-            [['company', 'contact'], 'exist'],
+            [['notes', 'leadName'], 'trim'],
+            [['contact', 'company'], 'integer']
         ];
     }
 
@@ -49,27 +53,53 @@ class LeedsForm extends Model
         $apiClient = AmoCrm::getApiClient();
         $leadsService = $apiClient->leads();
         $lead = new LeadModel();
-        $note = new CommonNote();
+        $company = $this->getCompany($apiClient);
+        $contact = $this->getContact($apiClient);
 
+        $links = new LinksCollection();
+        $links->add($company)->add($contact);
 
         try {
             $lead->setName($this->leadName);
             $lead = $leadsService->addOne($lead);
             $id = $lead->getId();
-            if($id){
+            if($id && $this->notes){
+                $note = new CommonNote();
                 $note->setEntityId($id)
                     ->setText($this->notes);
                 $leadNotesService = $apiClient->notes(EntityTypesInterface::LEADS);
                 $leadNotesService->addOne($note);
             }
         } catch (AmoCRMApiException $e) {
-            echo "<pre>";
-            printError($e);
-            echo "</pre>";
-            die;
+            Yii::$app->session->setFlash('error', $e->getMessage());
+            return false;
         }
 
+        $apiClient->leads()->link($lead, $links);
+
         return true;
+    }
+
+    /**
+     * @param AmoCRMApiClient $apiClient
+     * @return \AmoCRM\Models\CompanyModel|null
+     * @throws AmoCRMApiException
+     * @throws \AmoCRM\Exceptions\AmoCRMoAuthApiException
+     */
+    public function getCompany(AmoCRMApiClient $apiClient)
+    {
+        return $apiClient->companies()->getOne($this->company);
+    }
+
+    /**
+     * @param AmoCRMApiClient $apiClient
+     * @return \AmoCRM\Models\ContactModel|null
+     * @throws AmoCRMApiException
+     * @throws \AmoCRM\Exceptions\AmoCRMoAuthApiException
+     */
+    public function getContact(AmoCRMApiClient $apiClient)
+    {
+        return $apiClient->contacts()->getOne($this->contact);
     }
 
 }

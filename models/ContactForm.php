@@ -2,7 +2,9 @@
 
 namespace app\models;
 
-use Yii;
+use AmoCRM\Collections\CustomFieldsValuesCollection;
+use AmoCRM\Exceptions\AmoCRMApiException;
+use AmoCRM\Models\ContactModel;
 use yii\base\Model;
 
 /**
@@ -12,9 +14,8 @@ class ContactForm extends Model
 {
     public $name;
     public $email;
-    public $subject;
-    public $body;
-    public $verifyCode;
+    public $position;
+    public $phone;
 
 
     /**
@@ -23,12 +24,9 @@ class ContactForm extends Model
     public function rules()
     {
         return [
-            // name, email, subject and body are required
-            [['name', 'email', 'subject', 'body'], 'required'],
-            // email has to be a valid email address
+            [['name'], 'required'],
             ['email', 'email'],
-            // verifyCode needs to be entered correctly
-            ['verifyCode', 'captcha'],
+            [['name','phone','position','email'], 'string', 'min' => 3],
         ];
     }
 
@@ -38,28 +36,47 @@ class ContactForm extends Model
     public function attributeLabels()
     {
         return [
-            'verifyCode' => 'Verification Code',
+            'name' => 'ФИО',
+            'phone' => 'Телефон',
+            'position' => 'Должность',
         ];
     }
 
     /**
-     * Sends an email to the specified email address using the information collected by this model.
-     * @param string $email the target email address
-     * @return bool whether the model passes validation
+     * @return bool
      */
-    public function contact($email)
+    public function create()
     {
-        if ($this->validate()) {
-            Yii::$app->mailer->compose()
-                ->setTo($email)
-                ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
-                ->setReplyTo([$this->email => $this->name])
-                ->setSubject($this->subject)
-                ->setTextBody($this->body)
-                ->send();
-
-            return true;
+        if(!$this->validate()){
+            return false;
         }
-        return false;
+
+        $apiClient = AmoCrm::getApiClient();
+        $newContact = new ContactModel();
+        $newContact = $newContact->setName($this->name);
+
+        $customFieldsValuesCollection = new CustomFieldsValuesCollection();
+
+        if($this->phone){
+            $customFieldsValuesCollection = AmoCrm::setPhoneCustomField($customFieldsValuesCollection, $this->phone);
+        }
+
+        if($this->email){
+            $customFieldsValuesCollection = AmoCrm::setEmailCustomField($customFieldsValuesCollection, $this->email);
+        }
+
+        if($this->position){
+            $customFieldsValuesCollection = AmoCrm::setPositionCustomField($customFieldsValuesCollection, $this->position);
+        }
+
+        $newContact->setCustomFieldsValues($customFieldsValuesCollection);
+        try {
+            $apiClient->contacts()->addOne($newContact);
+        } catch (AmoCRMApiException $e) {
+            return false;
+        }
+
+        return true;
+
     }
 }

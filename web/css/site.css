@@ -41,7 +41,7 @@ a.asc:after, a.desc:after {
     position: relative;
     top: 1px;
     display: inline-block;
-    font-family: 'Glyphicons Halflings';
+    font-family: 'Glyphicons Halflings', 'sans-serif';
     font-style: normal;
     font-weight: normal;
     line-height: 1;
@@ -112,4 +112,14 @@ a.desc:after {
 
 .nav > li > form > button.logout:focus {
     outline: none;
+}
+
+.lead-title {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+
+.lead-title_buttons {
+    list-style: none;
 }

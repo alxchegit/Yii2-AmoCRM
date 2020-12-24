@@ -8,8 +8,10 @@
 
 use yii\helpers\Html;
 
-$this->title = 'My Yii Application';
+$this->title = 'Список сделок';
 
+$amo = Yii::$app->params['amocrm'];
+$baseDomain = $amo['baseDomain'];
 ?>
 <div hidden>
     <pre>
@@ -17,15 +19,29 @@ $this->title = 'My Yii Application';
     </pre>
 </div>
 <div class="site-index">
-    <div class="body-content">
-        <div class="row">
-            <div class="clearfix">
-                <?= Html::a('Добавить', ['create'], ['class' => 'btn btn-lg btn-success col-lg-2']) ?>
+    <div class="body-content container">
+            <div class="row ">
+                <h2 class="align-content-center"><?= $this->title ?></h2>
+                <p>Интеграция для <strong><?= $baseDomain ?></strong></p>
+                <p class="col-lg-3">
+                    <?= Html::a('Добавить', ['create'], ['class' => 'btn btn-lg btn-success']) ?>
+                </p>
             </div>
+
+        <div class="row">
         <?php foreach ($leads as $key => $lead) { ?>
             <div class="amocrm-lead alert alert-info">
                 <div class="hidden"> <?= $lead->id ?> </div>
-               <a data-toggle="collapse" data-target="#lead-<?= $key ?>"><h2 > <?= $lead->name ?> </h2></a>
+                <div class="lead-title">
+                    <a data-toggle="collapse" data-target="#lead-<?= $key ?>" >
+                        <h2 > <?= $lead->name ?> </h2>
+                    </a>
+                    <ul class="lead-title_buttons">
+                        <li class="delete"><?= Html::a('Удалить', ['delete', 'id'=>$lead->id]) ?></li>
+                        <li class="edit"><?= Html::a('Редактировать', ['edit', 'id'=>$lead->id]) ?></li>
+                    </ul>
+                </div>
+
                <p>отв: <strong>
                     <?= $users->getOne($lead->responsibleUserId)->name ?> 
                 </strong></p>
@@ -33,12 +49,12 @@ $this->title = 'My Yii Application';
                 <p>Контакты:</p>
                 <ul>
                     <?php if ($lead->contacts) :?>
-                <?php foreach ($lead->contacts as $key => $contact) : ?>
+                <?php foreach ($lead->contacts as $contact) : ?>
                 <?php $cont = $contacts->getOne($contact->id) ?>
                     <li> <?= $cont->name ?>
                         <ul>
                             <?php $contactFields = $cont->getCustomFieldsValues() ?>
-                            <?php foreach ($contactFields as $key => $field) { ?>
+                            <?php foreach ($contactFields as $field) { ?>
                                 <li>
                                     <?= $field->fieldName ?>
                                     <ul>
@@ -56,12 +72,25 @@ $this->title = 'My Yii Application';
                 <?php endforeach; ?>
                 <?php endif; ?>
                 </ul>
-                    <?php if ($lead->company->id) : ?>
-                        <?php $company = $companies->getOne($lead->company->id) ?>
+                    <?php if ($compId = $lead->company->id) : ?>
+                        <?php $company = $companies->getOne($compId) ?>
                         <p>Компания: <strong><?= $company->name ?></strong></p>
-                        <pre>
-                            <?php print_r($company->getCustomFieldsValues())?>
-                        </pre>
+                        <ul>
+                            <?php $contactFields = $company->getCustomFieldsValues() ?>
+                            <?php foreach ($contactFields as $field) { ?>
+                                <li>
+                                    <?= $field->fieldName ?>
+                                    <ul>
+                                        <?php foreach ($field->getValues()->toArray() as $fieldArray) { ?>
+                                            <li>
+                                                <?= $fieldArray['value'] ?>
+                                            </li>
+                                        <?php } ?>
+
+                                    </ul>
+                                </li>
+                            <?php } ?>
+                        </ul>
                 <?php endif; ?>
             </div>
                

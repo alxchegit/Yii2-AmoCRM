@@ -5,11 +5,8 @@ namespace app\models;
 
 use AmoCRM\Collections\CustomFieldsValuesCollection;
 use AmoCRM\Exceptions\AmoCRMApiException;
-use AmoCRM\Models\CustomFieldsValues\MultitextCustomFieldValuesModel;
 use AmoCRM\Models\CustomFieldsValues\TextareaCustomFieldValuesModel;
-use AmoCRM\Models\CustomFieldsValues\ValueCollections\MultitextCustomFieldValueCollection;
 use AmoCRM\Models\CustomFieldsValues\ValueCollections\TextareaCustomFieldValueCollection;
-use AmoCRM\Models\CustomFieldsValues\ValueModels\MultitextCustomFieldValueModel;
 use AmoCRM\Models\CustomFieldsValues\ValueModels\TextareaCustomFieldValueModel;
 use yii\base\Model;
 use AmoCRM\Models\CompanyModel;
@@ -54,25 +51,11 @@ class CompanyForm extends Model
         $customFieldsValuesCollection = new CustomFieldsValuesCollection();
 
         if($this->phone){
-            $phonecf = new MultitextCustomFieldValuesModel();
-            $phonecf->setFieldId(192729);
-            $phonecf = $phonecf->setValues(
-                (new MultitextCustomFieldValueCollection())
-                ->add(
-                    (new MultitextCustomFieldValueModel())->setValue($this->phone)
-                        ->setEnum('WORK')));
-            $customFieldsValuesCollection->add($phonecf);
+            $customFieldsValuesCollection = AmoCrm::setPhoneCustomField($customFieldsValuesCollection, $this->phone);
         }
 
         if($this->email){
-            $emailcf = new MultitextCustomFieldValuesModel();
-            $emailcf->setFieldId(192731);
-            $emailcf = $emailcf->setValues(
-                (new MultitextCustomFieldValueCollection())
-                    ->add(
-                        (new MultitextCustomFieldValueModel())->setValue($this->email)
-                            ->setEnum('WORK')));
-            $customFieldsValuesCollection->add($emailcf);
+            $customFieldsValuesCollection = AmoCrm::setEmailCustomField($customFieldsValuesCollection, $this->email);
         }
 
         if($this->address){

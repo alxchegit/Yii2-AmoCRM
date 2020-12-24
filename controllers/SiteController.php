@@ -82,8 +82,7 @@ class SiteController extends Controller
                 $cont[$contact['id']] = $contact['name'];
             }
         } catch (AmoCRMApiException $e) {
-            printError($e);
-            die;
+
         }
         $model = new LeedsForm();
 
@@ -106,13 +105,13 @@ class SiteController extends Controller
     public function actionTest()
     {
         $apiClient = $this->AmoCrmConstruct();
-        $companies = $apiClient->contacts()->get()->toArray();
-        $testOutput = [];
-        foreach ($companies as $company){
-            $testOutput[$company['id']] = $company['name'];
-        }
+        $contacts = $apiClient->contacts()->get();
+//        $testOutput = [];
+//        foreach ($companies as $company){
+//            $testOutput[$company['id']] = $company['name'];
+//        }
         return $this->render('test', [
-            'testOutput' => $testOutput,
+            'testOutput' => $contacts,
         ]);
     }
 
@@ -189,6 +188,12 @@ class SiteController extends Controller
         ) {
             $this->goHome();
         } 
+    }
+
+    public function actionDelete(int $id)
+    {
+        $apiClient = AmoCrm::getApiClient();
+        $apiClient->leads()->getOne($id);
     }
 
 

@@ -7,7 +7,7 @@
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 
-$this->title = 'Создать компанию';
+$this->title = 'Создать контакт';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="site-create">
@@ -23,9 +23,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
             <?= $form->field($model, 'name')->textInput(['autofocus' => true]) ?>
 
-            <?= $form->field($model, 'phone')->textInput() ?>
+            <?= $form->field($model, 'position')->textInput() ?>
 
-            <?= $form->field($model, 'address')->textInput() ?>
+            <?= $form->field($model, 'phone')->textInput() ?>
 
             <?= $form->field($model, 'email')->input('email') ?>
 
