@@ -19,7 +19,7 @@ $baseDomain = $amo['baseDomain'];
                 <h2 class="align-content-center"><?= $this->title ?></h2>
                 <p>Интеграция для <strong><?= $baseDomain ?></strong></p>
                 <p class="col-lg-3">
-                    <?= Html::a('Добавить', ['create'], ['class' => 'btn btn-lg btn-success']) ?>
+                    <?= Html::a('Новая сделка', ['create'], ['class' => 'btn btn-lg btn-success']) ?>
                 </p>
             </div>
 
