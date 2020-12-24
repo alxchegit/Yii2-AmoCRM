@@ -46,7 +46,7 @@ class AmoCrm
         return $apiClient;
     }
 
-    public static function setPhoneCustomField(CustomFieldsValuesCollection $customFieldsValuesCollection, int $phone): CustomFieldsValuesCollection
+    public static function setPhoneCustomField(CustomFieldsValuesCollection $customFieldsValuesCollection, string $phone): CustomFieldsValuesCollection
     {
         $fieldModel = new MultitextCustomFieldValuesModel();
         $fieldModel->setFieldId(self::$phoneCustomFieldId);
