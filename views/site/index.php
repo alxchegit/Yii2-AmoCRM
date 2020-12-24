@@ -13,11 +13,6 @@ $this->title = 'Список сделок';
 $amo = Yii::$app->params['amocrm'];
 $baseDomain = $amo['baseDomain'];
 ?>
-<div hidden>
-    <pre>
-        <?php print_r($leads) ?>
-    </pre>
-</div>
 <div class="site-index">
     <div class="body-content container">
             <div class="row ">
@@ -37,13 +32,12 @@ $baseDomain = $amo['baseDomain'];
                         <h2 > <?= $lead->name ?> </h2>
                     </a>
                     <ul class="lead-title_buttons">
-                        <li class="delete"><?= Html::a('Удалить', ['delete', 'id'=>$lead->id]) ?></li>
-                        <li class="edit"><?= Html::a('Редактировать', ['edit', 'id'=>$lead->id]) ?></li>
+                        <li class="delete"><?= Html::a('Удалить', ['#']) ?></li>
                     </ul>
                 </div>
 
-               <p>отв: <strong>
-                    <?= $users->getOne($lead->responsibleUserId)->name ?> 
+                <p>отв: <strong>
+                    <?= $users->getOne($lead->responsibleUserId)->name ?>
                 </strong></p>
                 <div class="amocrm-lead_body collapse" id="lead-<?= $key ?>">
                 <p>Контакты:</p>
@@ -63,7 +57,7 @@ $baseDomain = $amo['baseDomain'];
                                                 <?= $fieldArray['value'] ?>
                                            </li>
                                         <?php } ?>
-                                        
+
                                     </ul>
                                 </li>
                             <?php } ?>
@@ -92,7 +86,7 @@ $baseDomain = $amo['baseDomain'];
                             <?php } ?>
                         </ul>
                 <?php endif; ?>
-            </div>
+                </div>
                
             </div>
         <?php } ?>

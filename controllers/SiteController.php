@@ -70,11 +70,11 @@ class SiteController extends Controller
     public function actionCreate()
     {
         $apiClient = $this->AmoCrmConstruct();
+        $comps = [];
+        $cont = [];
         try {
             $companies = $apiClient->companies()->get()->toArray();
             $contacts = $apiClient->contacts()->get()->toArray();
-            $comps = [];
-            $cont = [];
             foreach ($companies as $company){
                 $comps[$company['id']] = $company['name'];
             }
@@ -84,6 +84,7 @@ class SiteController extends Controller
         } catch (AmoCRMApiException $e) {
 
         }
+
         $model = new LeedsForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->create()) {
@@ -99,8 +100,9 @@ class SiteController extends Controller
     }
 
     /**
-     *
      * @return string
+     * @throws AmoCRMApiException
+     * @throws \AmoCRM\Exceptions\AmoCRMoAuthApiException
      */
     public function actionTest()
     {
@@ -189,12 +191,5 @@ class SiteController extends Controller
             $this->goHome();
         } 
     }
-
-    public function actionDelete(int $id)
-    {
-        $apiClient = AmoCrm::getApiClient();
-        $apiClient->leads()->getOne($id);
-    }
-
 
 }

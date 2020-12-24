@@ -33,8 +33,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 <div class="clearfix" style="margin-bottom: 10px;">
                     <?= Html::a('Создать контакт', ['/contact/create'],['style'=>'float:right;'] )?>
                 </div>
+
                     <?= $form->field($model, 'notes')->textarea(['rows' => 2]) ?>
 
+                <?= $form->field($model, 'settask')->checkbox() ?>
                 <div class="form-group">
                         <?= Html::submitButton('Добавить', ['class' => 'btn btn-primary', 'name' => 'contact-button']) ?>
                     </div>

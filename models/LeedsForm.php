@@ -3,7 +3,9 @@ namespace app\models;
 
 use AmoCRM\Client\AmoCRMApiClient;
 use AmoCRM\Collections\LinksCollection;
+use AmoCRM\Collections\TasksCollection;
 use AmoCRM\Models\NoteType\CommonNote;
+use AmoCRM\Models\TaskModel;
 use Yii;
 use yii\base\Model;
 use AmoCRM\Helpers\EntityTypesInterface;
@@ -12,13 +14,9 @@ use AmoCRM\Models\LeadModel;
 
 class LeedsForm extends Model
 {
-    public $responsibleUser;
     public $company;
-    public $companyPhone;
-    public $companyEmail;
-    public $companyAddress;
     public $contact;
-    public $task;
+    public $settask;
     public $leadName;
     public $notes;
 
@@ -31,7 +29,8 @@ class LeedsForm extends Model
             [['leadName','company', 'contact'], 'required'],
             [['notes', 'leadName'], 'string'],
             [['notes', 'leadName'], 'trim'],
-            [['contact', 'company'], 'integer']
+            [['contact', 'company'], 'integer'],
+            ['settask', 'boolean'],
         ];
     }
 
@@ -42,9 +41,15 @@ class LeedsForm extends Model
             'notes' => 'Примечание',
             'company' => 'Компания',
             'contacts' => 'Контакт',
+            'settask' => 'Создать задачу',
         ];
     }
 
+    /**
+     * @return bool
+     * @throws AmoCRMApiException
+     * @throws \AmoCRM\Exceptions\AmoCRMoAuthApiException
+     */
     public function create()
     {
         if(!$this->validate()){
@@ -70,12 +75,27 @@ class LeedsForm extends Model
                 $leadNotesService = $apiClient->notes(EntityTypesInterface::LEADS);
                 $leadNotesService->addOne($note);
             }
+            if($this->settask){
+                $tasksCollection = new TasksCollection();
+                $task = new TaskModel();
+                $day = date('d') ;
+                $month = date('m');
+                $year = date('Y');
+                $task->setTaskTypeId(TaskModel::TASK_TYPE_ID_CALL)
+                    ->setText('Тестовая задача')
+                    ->setCompleteTill(mktime(23, 59, 59, $month, $day, $year))
+                    ->setEntityType(EntityTypesInterface::LEADS)
+                    ->setEntityId($id)
+                    ->setResponsibleUserId($lead->getResponsibleUserId())
+                    ->setDuration(24*60*60);
+                $tasksCollection->add($task);
+                $apiClient->tasks()->add($tasksCollection);
+            }
+            $apiClient->leads()->link($lead, $links);
         } catch (AmoCRMApiException $e) {
-            Yii::$app->session->setFlash('error', $e->getMessage());
+            Yii::$app->session->setFlash('error', "Ошибка создания сделки - " . $e->getMessage());
             return false;
         }
-
-        $apiClient->leads()->link($lead, $links);
 
         return true;
     }
